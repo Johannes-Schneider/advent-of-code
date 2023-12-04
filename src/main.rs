@@ -9,7 +9,7 @@ fn cli() -> Command {
         .subcommand(
             Command::new("day1")
                 .arg(arg!(<FILE> "The input file for the challenge."))
-                .arg_required_else_help(true)
+                .arg_required_else_help(true),
         )
 }
 
@@ -19,7 +19,6 @@ fn day1(sub_matches: &ArgMatches) {
     println!("Result of Day1 challenge: {}", maybe_result.unwrap());
 }
 
-
 fn main() {
     let matches = cli().get_matches();
 
@@ -27,6 +26,6 @@ fn main() {
         Some(("day1", sub_matches)) => {
             day1(sub_matches);
         }
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }

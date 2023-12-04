@@ -7,15 +7,11 @@ pub struct GenericError {
 
 impl GenericError {
     pub fn new(message: &'static str) -> GenericError {
-        GenericError {
-            message
-        }
+        GenericError { message }
     }
 }
 
-impl Error for GenericError {
-
-}
+impl Error for GenericError {}
 
 impl Display for GenericError {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

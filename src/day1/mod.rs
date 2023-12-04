@@ -1,14 +1,39 @@
+use phf::phf_map;
 use std::error::Error;
 use std::fs;
+use substring::Substring;
 
 use advent_of_code::GenericError;
+
+static DIGITS: phf::Map<&'static str, u32> = phf_map! {
+    "1" => 1,
+    "2" => 2,
+    "3" => 3,
+    "4" => 4,
+    "5" => 5,
+    "6" => 6,
+    "7" => 7,
+    "8" => 8,
+    "9" => 9,
+    "one" => 1,
+    "two" => 2,
+    "three" => 3,
+    "four" => 4,
+    "five" => 5,
+    "six" => 6,
+    "seven" => 7,
+    "eight" => 8,
+    "nine" => 9
+};
 
 pub fn day1(file_path: &str) -> Result<u32, Box<dyn Error>> {
     let text = fs::read_to_string(file_path)?;
     let digits = find_all_first_and_last_digits(&text);
 
     if digits.is_none() {
-        return Err(Box::new(GenericError::new("not all lines contained (at least) two digits")) as Box<dyn Error>);
+        return Err(Box::new(GenericError::new(
+            "not all lines contained (at least) two digits",
+        )));
     }
 
     Ok(digits.unwrap().iter().sum())
@@ -22,7 +47,10 @@ fn find_all_first_and_last_digits(text: &str) -> Option<Vec<u32>> {
         let maybe_combined_digits = combine_digits(&maybe_digits);
 
         if maybe_combined_digits.is_none() {
-            println!("Line number {} ('{line}') does not contain two digits.", line_number + 1);
+            println!(
+                "Line number {} ('{line}') does not contain two digits.",
+                line_number + 1
+            );
             return None;
         }
 
@@ -40,27 +68,52 @@ fn find_first_and_last_digit(input: &str) -> Option<(u32, u32)> {
     let mut first_digit: Option<u32> = None;
     let mut second_digit: Option<u32> = None;
 
-    for character in input.chars() {
-        let maybe_digit = character.to_digit(10);
-        if maybe_digit.is_some() {
-            second_digit = maybe_digit;
+    let mut remaining_input = input;
+    while !remaining_input.is_empty() {
+        let result = extract_next_digit(remaining_input);
+        remaining_input = result.0;
 
-            if first_digit == None {
-                first_digit = maybe_digit;
-            }
+        if result.1.is_none() {
+            continue;
+        }
+
+        second_digit = result.1;
+        if first_digit.is_none() {
+            first_digit = result.1;
         }
     }
 
-    if first_digit == None || second_digit == None {
-        None
-    } else {
-        Some((first_digit.unwrap(), second_digit.unwrap()))
+    if first_digit.is_none() || second_digit.is_none() {
+        return None;
     }
+
+    return Some((first_digit.unwrap(), second_digit.unwrap()));
+}
+
+fn extract_next_digit(input: &str) -> (&str, Option<u32>) {
+    if input.is_empty() {
+        return (input, None);
+    }
+
+    for key in DIGITS.keys() {
+        if !input.starts_with(*key) {
+            continue;
+        }
+
+        let value = DIGITS.get(key).unwrap();
+        let input_left = input.substring(1, input.len());
+        return (input_left, Some(*value));
+    }
+
+    return (input.substring(1, input.len()), None);
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{find_all_first_and_last_digits, find_first_and_last_digit, combine_digits};
+    use super::{
+        combine_digits, extract_next_digit, find_all_first_and_last_digits,
+        find_first_and_last_digit,
+    };
 
     #[test]
     fn multiple_lines() {
@@ -70,15 +123,60 @@ foo1bar2baz
 56
 oof  7   8 9  har
 1
+one23fourbar
+one
 ";
         let actual = find_all_first_and_last_digits(input);
 
-        assert_eq!(vec_eq(&vec![12, 34, 56, 79, 11], &actual.unwrap()), true);
+        assert_eq!(
+            vec_eq(&vec![12, 34, 56, 79, 11, 14, 11], &actual.unwrap()),
+            true
+        );
     }
 
     #[test]
-    fn combine_digits_works()
-    {
+    fn example_test() {
+        let input = "\
+two1nine
+eightwothree
+abcone2threexyz
+xtwone3four
+4nineeightseven2
+zoneight234
+7pqrstsixteen";
+        let actual = find_all_first_and_last_digits(input);
+
+        assert!(vec_eq(&vec![29, 83, 13, 24, 42, 14, 76], &actual.unwrap()))
+    }
+
+    #[test]
+    fn written_with_overlap() {
+        let input = "\
+oneight
+1twone";
+        let actual = find_all_first_and_last_digits(input);
+
+        assert!(vec_eq(&vec![18, 11], &actual.unwrap()));
+    }
+
+    #[test]
+    fn extract_next_regular_digit_at_first_index() {
+        let input = "1";
+        let actual = extract_next_digit(input);
+
+        assert_eq!(("", Some(1)), actual);
+    }
+
+    #[test]
+    fn extract_next_written_digit_at_first_index() {
+        let input = "one";
+        let actual = extract_next_digit(input);
+
+        assert_eq!(("", Some(1)), actual);
+    }
+
+    #[test]
+    fn combine_digits_works() {
         let input = Some((1, 1));
         let actual = combine_digits(&input);
 
@@ -115,6 +213,22 @@ oof  7   8 9  har
         let actual = find_first_and_last_digit(input);
 
         assert_eq!(Some((1, 3)), actual);
+    }
+
+    #[test]
+    fn written_digits() {
+        let input = "fooonebartwobaz";
+        let actual = find_first_and_last_digit(input);
+
+        assert_eq!(Some((1, 2)), actual);
+    }
+
+    #[test]
+    fn written_and_regular_digits() {
+        let input = "fooonebar2baz";
+        let actual = find_first_and_last_digit(input);
+
+        assert_eq!(Some((1, 2)), actual);
     }
 
     #[test]
