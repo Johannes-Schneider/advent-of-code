@@ -5,14 +5,14 @@ use std::fs;
 
 use advent_of_code::GenericError;
 
-struct CubeReveal {
+struct CubeCollection {
     red: u32,
     green: u32,
     blue: u32,
 }
 
-impl CubeReveal {
-    fn parse(input: &str) -> Result<CubeReveal, GenericError> {
+impl CubeCollection {
+    fn parse(input: &str) -> Result<CubeCollection, GenericError> {
         let mut parts = input.split(",").map(|s| s.trim()).collect::<Vec<&str>>();
         parts.retain(|s| s.len() > 0);
 
@@ -69,7 +69,7 @@ impl CubeReveal {
             }
         }
 
-        Ok(CubeReveal {
+        Ok(CubeCollection {
             red: red.unwrap_or(0),
             green: green.unwrap_or(0),
             blue: blue.unwrap_or(0),
@@ -77,13 +77,13 @@ impl CubeReveal {
     }
 }
 
-impl PartialEq<Self> for CubeReveal {
+impl PartialEq<Self> for CubeCollection {
     fn eq(&self, other: &Self) -> bool {
         return self.red == other.red && self.green == other.green && self.blue == other.blue;
     }
 }
 
-impl Display for CubeReveal {
+impl Display for CubeCollection {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -93,7 +93,7 @@ impl Display for CubeReveal {
     }
 }
 
-impl Debug for CubeReveal {
+impl Debug for CubeCollection {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(
             f,
@@ -103,11 +103,11 @@ impl Debug for CubeReveal {
     }
 }
 
-impl Eq for CubeReveal {}
+impl Eq for CubeCollection {}
 
 struct Game {
     id: u32,
-    reveals: Vec<CubeReveal>,
+    reveals: Vec<CubeCollection>,
 }
 
 impl Game {
@@ -151,7 +151,7 @@ impl Game {
         return Ok(maybe_id.unwrap());
     }
 
-    fn extract_cube_reveals(input: &str) -> Result<Vec<CubeReveal>, GenericError> {
+    fn extract_cube_reveals(input: &str) -> Result<Vec<CubeCollection>, GenericError> {
         let mut parts = input
             .trim()
             .split(";")
@@ -163,15 +163,22 @@ impl Game {
             return Err(GenericError::new("game does not include any cube reveals"));
         }
 
-        let mut result: Vec<CubeReveal> = Vec::new();
+        let mut result: Vec<CubeCollection> = Vec::new();
         for part in parts {
-            result.push(CubeReveal::parse(part)?);
+            result.push(CubeCollection::parse(part)?);
         }
 
         return Ok(result);
     }
 
-    fn is_possible_with_bag(&self, bag: &CubeReveal) -> bool {
+    fn is_possible_with_bag(&self, bag: &CubeCollection) -> bool {
+        let seen_cubes = self.maximum_number_of_seen_cubes_per_color();
+        return bag.red >= seen_cubes.red
+            && bag.green >= seen_cubes.green
+            && bag.blue >= seen_cubes.blue;
+    }
+
+    fn maximum_number_of_seen_cubes_per_color(&self) -> CubeCollection {
         let mut seen_red: u32 = 0;
         let mut seen_green: u32 = 0;
         let mut seen_blue: u32 = 0;
@@ -182,7 +189,11 @@ impl Game {
             seen_blue = max(seen_blue, r.blue);
         }
 
-        return bag.red >= seen_red && bag.green >= seen_green && bag.blue >= seen_blue;
+        return CubeCollection {
+            red: seen_red,
+            green: seen_green,
+            blue: seen_blue,
+        };
     }
 }
 
@@ -200,38 +211,63 @@ impl Debug for Game {
 
 impl Eq for Game {}
 
-pub fn day2(file_path: &str) -> Result<u32, Box<dyn Error>> {
-    let text = fs::read_to_string(file_path)?;
-    let bag = CubeReveal {
+pub fn day2_challenge1(file_path: &str) -> Result<u32, Box<dyn Error>> {
+    let bag = CubeCollection {
         red: 12,
         green: 13,
         blue: 14,
     };
+    let games = read_all_games(file_path)?;
+
+    return Ok(games
+        .iter()
+        .filter(|g| g.is_possible_with_bag(&bag))
+        .map(|g| g.id)
+        .sum());
+}
+
+pub fn day2_challenge2(file_path: &str) -> Result<u32, Box<dyn Error>> {
+    let games = read_all_games(file_path)?;
+
+    let mut result: u32 = 0;
+    for game in games {
+        let required_bag = game.maximum_number_of_seen_cubes_per_color();
+        let product = required_bag.red * required_bag.green * required_bag.blue;
+        result += product;
+    }
+
+    return Ok(result);
+}
+
+fn read_all_games(file_path: &str) -> Result<Vec<Game>, Box<dyn Error>> {
+    let text = fs::read_to_string(file_path)?;
 
     let mut games: Vec<Game> = Vec::new();
     for line in text.lines() {
         let maybe_game = Game::parse(line);
         if maybe_game.is_err() {
-            return Err(Box::new(GenericError::new("not all lines contain a valid game")));
+            return Err(Box::new(GenericError::new(
+                "not all lines contain a valid game",
+            )));
         }
 
         games.push(maybe_game.unwrap());
     }
 
-    return Ok(games.iter().filter(|g| g.is_possible_with_bag(&bag)).map(|g| g.id).sum());
+    return Ok(games);
 }
 
 #[cfg(test)]
 mod tests {
-    use crate::day2::{CubeReveal, Game};
+    use crate::day2::{CubeCollection, Game};
 
     #[test]
     fn parse_cube_reveal_one_blue() {
         let input = "1 blue";
-        let actual = CubeReveal::parse(input).unwrap();
+        let actual = CubeCollection::parse(input).unwrap();
 
         assert_eq!(
-            CubeReveal {
+            CubeCollection {
                 red: 0,
                 green: 0,
                 blue: 1,
@@ -243,10 +279,10 @@ mod tests {
     #[test]
     fn parse_cube_reveal_one_red() {
         let input = "1 red";
-        let actual = CubeReveal::parse(input).unwrap();
+        let actual = CubeCollection::parse(input).unwrap();
 
         assert_eq!(
-            CubeReveal {
+            CubeCollection {
                 red: 1,
                 green: 0,
                 blue: 0,
@@ -258,10 +294,10 @@ mod tests {
     #[test]
     fn parse_cube_reveal_one_green() {
         let input = "1 green";
-        let actual = CubeReveal::parse(input).unwrap();
+        let actual = CubeCollection::parse(input).unwrap();
 
         assert_eq!(
-            CubeReveal {
+            CubeCollection {
                 red: 0,
                 green: 1,
                 blue: 0,
@@ -273,10 +309,10 @@ mod tests {
     #[test]
     fn parse_cube_reveal_all_colors() {
         let input = "10 green, 11 red, 12 blue";
-        let actual = CubeReveal::parse(input).unwrap();
+        let actual = CubeCollection::parse(input).unwrap();
 
         assert_eq!(
-            CubeReveal {
+            CubeCollection {
                 red: 11,
                 green: 10,
                 blue: 12,
@@ -288,10 +324,10 @@ mod tests {
     #[test]
     fn parse_cube_reveal_trailing_spaces() {
         let input = "  10  green  ,     33  blue";
-        let actual = CubeReveal::parse(input).unwrap();
+        let actual = CubeCollection::parse(input).unwrap();
 
         assert_eq!(
-            CubeReveal {
+            CubeCollection {
                 red: 0,
                 green: 10,
                 blue: 33,
@@ -303,7 +339,7 @@ mod tests {
     #[test]
     fn parse_cube_reveal_wrong_order() {
         let input = "green 1";
-        let actual = CubeReveal::parse(input);
+        let actual = CubeCollection::parse(input);
 
         assert_eq!(actual.is_err(), true)
     }
@@ -311,7 +347,7 @@ mod tests {
     #[test]
     fn parse_cube_reveal_unknown_color() {
         let input = "10 orange";
-        let actual = CubeReveal::parse(input);
+        let actual = CubeCollection::parse(input);
 
         assert_eq!(actual.is_err(), true)
     }
@@ -319,7 +355,7 @@ mod tests {
     #[test]
     fn parse_cube_reveal_missing_amount() {
         let input = "green";
-        let actual = CubeReveal::parse(input);
+        let actual = CubeCollection::parse(input);
 
         assert_eq!(actual.is_err(), true)
     }
@@ -327,7 +363,7 @@ mod tests {
     #[test]
     fn parse_cube_reveal_missing_color() {
         let input = "10";
-        let actual = CubeReveal::parse(input);
+        let actual = CubeCollection::parse(input);
 
         assert_eq!(actual.is_err(), true)
     }
@@ -335,7 +371,7 @@ mod tests {
     #[test]
     fn parse_cube_reveal_amount_is_not_a_number() {
         let input = "ten green";
-        let actual = CubeReveal::parse(input);
+        let actual = CubeCollection::parse(input);
 
         assert_eq!(actual.is_err(), true)
     }
@@ -349,12 +385,12 @@ mod tests {
             Game {
                 id: 1,
                 reveals: vec![
-                    CubeReveal {
+                    CubeCollection {
                         red: 3,
                         green: 2,
                         blue: 1,
                     },
-                    CubeReveal {
+                    CubeCollection {
                         red: 5,
                         green: 0,
                         blue: 4,
@@ -370,41 +406,44 @@ mod tests {
         let input = "Game 5: 3 blue, 3 red, 8 green; 5 blue, 1 red; 1 green, 19 blue, 3 red; 1 red, 5 green, 3 blue; 4 green, 20 blue, 4 red; 20 blue, 4 green";
         let actual = Game::parse(input).unwrap();
 
-        assert_eq!(Game {
-            id: 5,
-            reveals: vec![
-                CubeReveal {
-                    red: 3,
-                    green: 8,
-                    blue: 3,
-                },
-                CubeReveal {
-                    red: 1,
-                    green: 0,
-                    blue: 5,
-                },
-                CubeReveal {
-                    red: 3,
-                    green: 1,
-                    blue: 19,
-                },
-                CubeReveal {
-                    red: 1,
-                    green: 5,
-                    blue: 3,
-                },
-                CubeReveal {
-                    red: 4,
-                    green: 4,
-                    blue: 20,
-                },
-                CubeReveal {
-                    red: 0,
-                    green: 4,
-                    blue: 20,
-                },
-            ],
-        }, actual);
+        assert_eq!(
+            Game {
+                id: 5,
+                reveals: vec![
+                    CubeCollection {
+                        red: 3,
+                        green: 8,
+                        blue: 3,
+                    },
+                    CubeCollection {
+                        red: 1,
+                        green: 0,
+                        blue: 5,
+                    },
+                    CubeCollection {
+                        red: 3,
+                        green: 1,
+                        blue: 19,
+                    },
+                    CubeCollection {
+                        red: 1,
+                        green: 5,
+                        blue: 3,
+                    },
+                    CubeCollection {
+                        red: 4,
+                        green: 4,
+                        blue: 20,
+                    },
+                    CubeCollection {
+                        red: 0,
+                        green: 4,
+                        blue: 20,
+                    },
+                ],
+            },
+            actual
+        );
     }
 
     #[test]
@@ -412,24 +451,24 @@ mod tests {
         let game = Game {
             id: 0,
             reveals: vec![
-                CubeReveal {
+                CubeCollection {
                     red: 10,
                     green: 0,
                     blue: 0,
                 },
-                CubeReveal {
+                CubeCollection {
                     red: 0,
                     green: 11,
                     blue: 0,
                 },
-                CubeReveal {
+                CubeCollection {
                     red: 0,
                     green: 0,
                     blue: 12,
                 },
             ],
         };
-        let bag = CubeReveal {
+        let bag = CubeCollection {
             red: 9,
             green: 10,
             blue: 11,
@@ -443,24 +482,24 @@ mod tests {
         let game = Game {
             id: 0,
             reveals: vec![
-                CubeReveal {
+                CubeCollection {
                     red: 10,
                     green: 0,
                     blue: 0,
                 },
-                CubeReveal {
+                CubeCollection {
                     red: 0,
                     green: 11,
                     blue: 0,
                 },
-                CubeReveal {
+                CubeCollection {
                     red: 0,
                     green: 0,
                     blue: 12,
                 },
             ],
         };
-        let bag = CubeReveal {
+        let bag = CubeCollection {
             red: 11,
             green: 12,
             blue: 13,

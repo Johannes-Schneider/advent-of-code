@@ -27,8 +27,10 @@ fn day1(sub_matches: &ArgMatches) {
 
 fn day2(sub_matches: &ArgMatches) {
     let file = sub_matches.get_one::<String>("FILE").expect("required arg");
-    let maybe_result = day2::day2(file);
-    println!("Result of Day2 challenge: {}", maybe_result.unwrap());
+    let challenge1_result = day2::day2_challenge1(file);
+    let challenge2_result = day2::day2_challenge2(file);
+    println!("Result of Day2 challenge1: {}", challenge1_result.unwrap());
+    println!("Result of Dat2 challenge2: {}", challenge2_result.unwrap());
 }
 
 fn main() {
@@ -37,10 +39,8 @@ fn main() {
     match matches.subcommand() {
         Some(("day1", sub_matches)) => {
             day1(sub_matches);
-        },
-        Some(("day2", sub_matches)) => {
-            day2(sub_matches)
-        },
+        }
+        Some(("day2", sub_matches)) => day2(sub_matches),
         _ => unreachable!(),
     }
 }
