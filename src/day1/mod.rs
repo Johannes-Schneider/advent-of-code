@@ -172,7 +172,7 @@ oneight
         let input = "one";
         let actual = extract_next_digit(input);
 
-        assert_eq!(("", Some(1)), actual);
+        assert_eq!(("ne", Some(1)), actual);
     }
 
     #[test]
