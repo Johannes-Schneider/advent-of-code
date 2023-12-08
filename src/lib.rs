@@ -63,12 +63,11 @@ pub fn day3(sub_matches: &ArgMatches) {
 
 pub fn day4(sub_matches: &ArgMatches) {
     let file = sub_matches.get_one::<String>("FILE").expect("required arg");
-    let challenge1_result = day4::day4_challenge1(file);
+    let challenge1_result = day4::day4_challenge1(file).unwrap();
+    let challenge2_result = day4::day4_challenge2(file).unwrap();
 
-    println!(
-        "Result of Day 4 - Challenge 1: {}",
-        challenge1_result.unwrap()
-    );
+    println!("Result of Day 4 - Challenge 1: {}", challenge1_result);
+    println!("Result of Day 4 - Challenge 2: {}", challenge2_result)
 }
 
 #[cfg(test)]
