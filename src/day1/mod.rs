@@ -1,9 +1,10 @@
-use phf::phf_map;
 use std::error::Error;
 use std::fs;
+
+use phf::phf_map;
 use substring::Substring;
 
-use advent_of_code::GenericError;
+use crate::GenericError;
 
 static DIGITS: phf::Map<&'static str, u32> = phf_map! {
     "1" => 1,

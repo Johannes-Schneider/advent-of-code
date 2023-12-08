@@ -1,8 +1,6 @@
-use clap::{arg, ArgMatches, Command};
+use clap::{arg, Command};
 
-mod day1;
-mod day2;
-mod day3;
+use advent_of_code::{day1, day2, day3};
 
 fn cli() -> Command {
     Command::new("aoc")
@@ -23,29 +21,6 @@ fn cli() -> Command {
                 .arg(arg!(<FILE> "The input file for the challenge."))
                 .arg_required_else_help(true),
         )
-}
-
-fn day1(sub_matches: &ArgMatches) {
-    let file = sub_matches.get_one::<String>("FILE").expect("required arg");
-    let maybe_result = day1::day1(file);
-    println!("Result of Day1 - Challenge 1: {}", maybe_result.unwrap());
-}
-
-fn day2(sub_matches: &ArgMatches) {
-    let file = sub_matches.get_one::<String>("FILE").expect("required arg");
-    let challenge1_result = day2::day2_challenge1(file).unwrap();
-    let challenge2_result = day2::day2_challenge2(file).unwrap();
-    println!("Result of Day2 - Challenge 1: {}", challenge1_result);
-    println!("Result of Dat2 - Challenge 2: {}", challenge2_result);
-}
-
-fn day3(sub_matches: &ArgMatches) {
-    let file = sub_matches.get_one::<String>("FILE").expect("required arg");
-    let challenge1_result = day3::day3_challenge1(file).unwrap();
-    let challenge2_result = day3::day3_challenge2(file).unwrap();
-
-    println!("Result of Day 3 - Challenge 1: {}", challenge1_result);
-    println!("Result of Day 3 - Challenge 3: {}", challenge2_result);
 }
 
 fn main() {

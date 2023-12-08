@@ -1,5 +1,5 @@
 use crate::day3::row_slice::RowSlice;
-use advent_of_code::GenericError;
+use crate::GenericError;
 
 use crate::day3::symbol::Symbol;
 

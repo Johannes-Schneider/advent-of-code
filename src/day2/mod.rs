@@ -3,7 +3,7 @@ use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 use std::fs;
 
-use advent_of_code::GenericError;
+use crate::GenericError;
 
 struct CubeCollection {
     red: u32,

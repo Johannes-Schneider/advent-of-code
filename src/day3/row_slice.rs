@@ -1,9 +1,8 @@
 use std::cmp::{max, min};
 
-use advent_of_code::GenericError;
-
 use crate::day3::schema::Schema;
 use crate::day3::symbol::Symbol;
+use crate::GenericError;
 
 #[derive(Debug, PartialEq)]
 pub struct RowSlice<'a> {
@@ -144,8 +143,6 @@ impl RowSlice<'_> {
 
 #[cfg(test)]
 mod tests {
-    use std::ops::Range;
-
     use crate::day3::row_slice::RowSlice;
     use crate::day3::schema::Schema;
     use crate::day3::symbol::Symbol;
@@ -240,10 +237,6 @@ mod tests {
         assert_eq!(slice.is_adjacent_to_cell(2, 2), true);
         assert_eq!(slice.is_adjacent_to_cell(2, 3), true);
         assert_eq!(slice.is_adjacent_to_cell(2, 4), false);
-    }
-
-    fn assert_adjacent_cell(slice: &RowSlice, cell_row: usize, cell_column: usize, expected: bool) {
-        assert_eq!(slice.is_adjacent_to_cell(cell_row, cell_column), expected);
     }
 
     #[test]
