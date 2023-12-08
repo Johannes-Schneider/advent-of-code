@@ -42,8 +42,10 @@ fn day2(sub_matches: &ArgMatches) {
 fn day3(sub_matches: &ArgMatches) {
     let file = sub_matches.get_one::<String>("FILE").expect("required arg");
     let challenge1_result = day3::day3_challenge1(file).unwrap();
+    let challenge2_result = day3::day3_challenge2(file).unwrap();
 
     println!("Result of Day 3 - Challenge 1: {}", challenge1_result);
+    println!("Result of Day 3 - Challenge 3: {}", challenge2_result);
 }
 
 fn main() {
