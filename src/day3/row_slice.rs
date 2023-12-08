@@ -35,7 +35,8 @@ impl RowSlice<'_> {
     }
 
     pub fn to_number(&self) -> u32 {
-        self.try_to_number().expect("slice is expected to be a numer")
+        self.try_to_number()
+            .expect("slice is expected to be a numer")
     }
 
     pub fn try_to_number(&self) -> Result<u32, GenericError> {
@@ -121,26 +122,6 @@ impl RowSlice<'_> {
         return false;
     }
 
-    pub fn is_adjacent_to_slice(&self, other: &RowSlice) -> bool {
-        let row_distance = self.row_distance(other.row);
-        if row_distance > 1 {
-            return false;
-        }
-
-        let smaller = if self.start <= other.start {
-            self
-        } else {
-            other
-        };
-        let bigger = if self.start > other.start {
-            self
-        } else {
-            other
-        };
-
-        return smaller.end >= bigger.start;
-    }
-
     pub fn is_adjacent_to_cell(&self, row: usize, column: usize) -> bool {
         let row_distance = self.row_distance(row);
         if row_distance > 1 {
@@ -222,68 +203,6 @@ mod tests {
 
             assert_eq!(sut.try_to_number().is_err(), true);
         }
-    }
-
-    #[test]
-    fn test_is_adjacent_to_slice() {
-        let schema = Schema::parse(
-            "\
-....
-....
-....",
-        )
-        .unwrap();
-
-        // top left
-        assert_adjacent_slices(&schema, 0, 0..1, 1, 1..3, true);
-        // top middle
-        assert_adjacent_slices(&schema, 0, 1..3, 1, 1..2, true);
-        // top right
-        assert_adjacent_slices(&schema, 0, 3..4, 1, 1..3, true);
-        // left
-        assert_adjacent_slices(&schema, 1, 1..2, 1, 2..3, true);
-        // right
-        assert_adjacent_slices(&schema, 1, 3..4, 1, 1..3, true);
-        // bottom left
-        assert_adjacent_slices(&schema, 2, 0..1, 1, 1..3, true);
-        // bottom middle
-        assert_adjacent_slices(&schema, 2, 1..3, 1, 1..2, true);
-        // bottom left
-        assert_adjacent_slices(&schema, 2, 3..4, 1, 1..3, true);
-
-        // same row - not adjacent
-        assert_adjacent_slices(&schema, 0, 0..1, 0, 2..3, false);
-        // two adjacent rows - not adjacent
-        assert_adjacent_slices(&schema, 0, 0..1, 1, 2..3, false);
-        // two non-adjacent rows - not adjacent
-        assert_adjacent_slices(&schema, 0, 0..1, 2, 0..1, false);
-    }
-
-    fn assert_adjacent_slices(
-        schema: &Schema,
-        row1: usize,
-        range1: Range<usize>,
-        row2: usize,
-        range2: Range<usize>,
-        expected: bool,
-    ) {
-        let slice1 = RowSlice {
-            schema,
-            row: row1,
-            start: range1.start,
-            end: range1.end,
-        };
-        let slice2 = RowSlice {
-            schema,
-            row: row2,
-            start: range2.start,
-            end: range2.end,
-        };
-
-        assert_eq!(slice1.is_adjacent_to_slice(&slice1), true);
-        assert_eq!(slice2.is_adjacent_to_slice(&slice2), true);
-        assert_eq!(slice1.is_adjacent_to_slice(&slice2), expected);
-        assert_eq!(slice2.is_adjacent_to_slice(&slice1), expected);
     }
 
     #[test]

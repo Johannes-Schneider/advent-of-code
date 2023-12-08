@@ -45,6 +45,13 @@ pub fn day3_challenge2(file_path: &str) -> Result<u32, Box<dyn Error>> {
     return Ok(result);
 }
 
-fn adjacent_slices<'a>(number_slices: &'a Vec<RowSlice>, row: usize, column: usize) -> Vec<&'a RowSlice<'a>> {
-    number_slices.iter().filter(|slice| slice.is_adjacent_to_cell(row, column)).collect()
+fn adjacent_slices<'a>(
+    number_slices: &'a Vec<RowSlice>,
+    row: usize,
+    column: usize,
+) -> Vec<&'a RowSlice<'a>> {
+    number_slices
+        .iter()
+        .filter(|slice| slice.is_adjacent_to_cell(row, column))
+        .collect()
 }
