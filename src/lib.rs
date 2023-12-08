@@ -9,6 +9,12 @@ impl GenericError {
     pub fn new(message: &'static str) -> GenericError {
         GenericError { message }
     }
+
+    pub fn not_implemented() -> GenericError {
+        GenericError {
+            message: "not implemented",
+        }
+    }
 }
 
 impl Error for GenericError {}
