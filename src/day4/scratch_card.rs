@@ -1,3 +1,4 @@
+use crate::string_functions::split_and_clean;
 use crate::GenericError;
 
 #[derive(Debug, PartialEq)]
@@ -44,12 +45,12 @@ impl ScratchCard {
     }
 
     fn extract_game_id(input: &str) -> Result<(u32, &str), GenericError> {
-        let parts = ScratchCard::split_and_clean(input, ":");
+        let parts = split_and_clean(input, ":");
         if parts.len() != 2 {
             return Err(GenericError::new("cannot extract game id from input"));
         }
 
-        let sub_parts = ScratchCard::split_and_clean(parts[0], " ");
+        let sub_parts = split_and_clean(parts[0], " ");
         if sub_parts.len() != 2 {
             return Err(GenericError::new("cannot extract game id from input"));
         }
@@ -65,7 +66,7 @@ impl ScratchCard {
     fn extract_winning_and_player_numbers(
         input: &str,
     ) -> Result<(Vec<u32>, Vec<u32>), GenericError> {
-        let parts = ScratchCard::split_and_clean(input, "|");
+        let parts = split_and_clean(input, "|");
         if parts.len() != 2 {
             return Err(GenericError::new("cannot extract number from input"));
         }
@@ -77,7 +78,7 @@ impl ScratchCard {
     }
 
     fn extract_numbers(input: &str) -> Result<Vec<u32>, GenericError> {
-        let parts = ScratchCard::split_and_clean(input, " ");
+        let parts = split_and_clean(input, " ");
 
         let mut result: Vec<u32> = Vec::new();
         for part in parts {
@@ -95,13 +96,6 @@ impl ScratchCard {
         }
 
         return Ok(result);
-    }
-
-    fn split_and_clean<'a>(input: &'a str, separator: &str) -> Vec<&'a str> {
-        let mut parts: Vec<&str> = input.trim().split(separator).map(|s| s.trim()).collect();
-        parts.retain(|s| !s.is_empty());
-
-        return parts;
     }
 
     pub fn points(&self) -> u32 {

@@ -7,6 +7,8 @@ mod day1;
 mod day2;
 mod day3;
 mod day4;
+mod day5;
+mod string_functions;
 
 pub struct GenericError {
     message: &'static str,
@@ -68,6 +70,13 @@ pub fn day4(sub_matches: &ArgMatches) {
 
     println!("Result of Day 4 - Challenge 1: {}", challenge1_result);
     println!("Result of Day 4 - Challenge 2: {}", challenge2_result)
+}
+
+pub fn day5(sub_matches: &ArgMatches) {
+    let file = sub_matches.get_one::<String>("FILE").expect("required arg");
+    let challenge1_result = day5::day5_challenge1(file).unwrap();
+
+    println!("Result of Day 5 - Challenge 1: {}", challenge1_result);
 }
 
 #[cfg(test)]
