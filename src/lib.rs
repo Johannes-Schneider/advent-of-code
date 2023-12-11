@@ -1,6 +1,7 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
+use crate::day6::day6_challenge1;
 use clap::ArgMatches;
 
 mod day1;
@@ -8,6 +9,7 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 mod string_functions;
 
 pub struct GenericError {
@@ -81,5 +83,9 @@ pub fn day5(sub_matches: &ArgMatches) {
     println!("Result of Day 5 - Challenge 2: {}", challenge2_result);
 }
 
-#[cfg(test)]
-mod tests {}
+pub fn day6(sub_matches: &ArgMatches) {
+    let file = sub_matches.get_one::<String>("FILE").expect("required arg");
+    let challenge1_result = day6_challenge1(file).unwrap();
+
+    println!("Result of Day 6 - Challenge 1: {}", challenge1_result);
+}

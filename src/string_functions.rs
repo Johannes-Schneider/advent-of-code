@@ -19,6 +19,15 @@ pub fn to_u32(input: &str) -> Result<u32, GenericError> {
     return Ok(maybe_result.unwrap());
 }
 
+pub fn all_to_u32(input: &[&str]) -> Result<Vec<u32>, GenericError> {
+    let mut result: Vec<u32> = Vec::new();
+    for x in input {
+        result.push(to_u32(x)?);
+    }
+
+    return Ok(result);
+}
+
 pub fn to_u128(input: &str) -> Result<u128, GenericError> {
     let maybe_result = input.parse::<u128>();
     if maybe_result.is_err() {
