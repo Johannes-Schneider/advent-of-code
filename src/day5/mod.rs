@@ -1,6 +1,7 @@
 use std::cmp::min;
 use std::error::Error;
 use std::fs;
+use std::ops::Range;
 
 use crate::day5::type_conversion::TypeConversion;
 use crate::string_functions::{split_and_clean, to_u128};
@@ -17,7 +18,7 @@ pub fn day5_challenge1(file_path: &str) -> Result<u128, Box<dyn Error>> {
         return Err(Box::new(GenericError::new("unexpected puzzle input")));
     }
 
-    let seed_ids = extract_seed_ids(lines[0])?;
+    let seed_ids = extract_seed_ids_challenge1(lines[0])?;
     let raw_mappings = extract_raw_mappings(&lines[2..])?;
     let mut conversions: Vec<TypeConversion> = Vec::new();
     for raw_mapping in raw_mappings {
@@ -39,7 +40,39 @@ pub fn day5_challenge1(file_path: &str) -> Result<u128, Box<dyn Error>> {
     return Ok(min_location_id);
 }
 
-fn extract_seed_ids(input: &str) -> Result<Vec<u128>, GenericError> {
+pub fn day5_challenge2(file_path: &str) -> Result<u128, Box<dyn Error>> {
+    let text = fs::read_to_string(file_path)?;
+    let lines = text.lines().collect::<Vec<&str>>();
+
+    if lines.len() < 3 {
+        return Err(Box::new(GenericError::new("unexpected puzzle input")));
+    }
+
+    let seed_ranges = extract_seed_ids_challenge2(lines[0])?;
+    let raw_mappings = extract_raw_mappings(&lines[2..])?;
+    let mut conversions: Vec<TypeConversion> = Vec::new();
+    for raw_mapping in raw_mappings {
+        conversions.push(TypeConversion::parse(raw_mapping)?);
+    }
+
+    let mut min_location_id = u128::MAX;
+    for seed_range in seed_ranges {
+        for seed_id in seed_range {
+            let maybe_location_id = apply_conversions(seed_id, &conversions);
+            if maybe_location_id.is_err() {
+                return Err(Box::new(GenericError::new(
+                    "unable to transform seed to location",
+                )));
+            }
+
+            min_location_id = min(min_location_id, maybe_location_id.unwrap());
+        }
+    }
+
+    return Ok(min_location_id);
+}
+
+fn extract_seed_ids_challenge1(input: &str) -> Result<Vec<u128>, GenericError> {
     let parts = split_and_clean(input, " ");
     if parts.len() < 2 {
         return Err(GenericError::new("unable to extract seed ids"));
@@ -48,6 +81,23 @@ fn extract_seed_ids(input: &str) -> Result<Vec<u128>, GenericError> {
     let mut result: Vec<u128> = Vec::new();
     for part_index in 1..parts.len() {
         result.push(to_u128(parts[part_index])?);
+    }
+
+    return Ok(result);
+}
+
+fn extract_seed_ids_challenge2(input: &str) -> Result<Vec<Range<u128>>, GenericError> {
+    let numbers = extract_seed_ids_challenge1(input)?;
+    if numbers.len() % 2 != 0 {
+        return Err(GenericError::new("uneven amount of seed numbers"));
+    }
+
+    let mut result: Vec<Range<u128>> = Vec::new();
+    for index in (0..numbers.len()).step_by(2) {
+        let start = numbers[index];
+        let length = numbers[index + 1];
+
+        result.push(start..start + length);
     }
 
     return Ok(result);
