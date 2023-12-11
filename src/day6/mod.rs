@@ -11,7 +11,7 @@ pub fn day6_challenge1(file_path: &str) -> Result<u128, Box<dyn Error>> {
 
     let mut result: u128 = 1;
     for race in races {
-        result *= race.number_of_ways_to_win() as u128;
+        result *= race.number_of_ways_to_win();
     }
 
     return Ok(result);

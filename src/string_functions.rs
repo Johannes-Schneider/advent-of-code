@@ -37,6 +37,15 @@ pub fn to_u128(input: &str) -> Result<u128, GenericError> {
     return Ok(maybe_result.unwrap());
 }
 
+pub fn all_to_u128(input: &[&str]) -> Result<Vec<u128>, GenericError> {
+    let mut result: Vec<u128> = Vec::new();
+    for x in input {
+        result.push(to_u128(x)?);
+    }
+
+    return Ok(result);
+}
+
 #[cfg(test)]
 mod tests {
     use crate::string_functions::split_and_clean;

@@ -1,12 +1,12 @@
 use std::error::Error;
 
-use crate::string_functions::{all_to_u32, split_and_clean};
+use crate::string_functions::{all_to_u128, all_to_u32, split_and_clean};
 use crate::GenericError;
 
 #[derive(Debug, PartialEq)]
 pub struct Race {
-    time: u32,
-    record_distance: u32,
+    time: u128,
+    record_distance: u128,
     _sqrt: f64,
 }
 
@@ -24,8 +24,8 @@ impl Race {
             return Err(GenericError::new("unable to parse races"));
         }
 
-        let times = all_to_u32(&raw_times[1..])?;
-        let distances = all_to_u32(&raw_distances[1..])?;
+        let times = all_to_u128(&raw_times[1..])?;
+        let distances = all_to_u128(&raw_distances[1..])?;
 
         let races = (0..times.len())
             .map(|i| Race::new(times[i], distances[i]))
@@ -33,7 +33,7 @@ impl Race {
         return Ok(races);
     }
 
-    fn new(time: u32, distance: u32) -> Race {
+    fn new(time: u128, distance: u128) -> Race {
         let inner: f64 = time.pow(2) as f64 - 4.0f64 * distance as f64;
         let root: f64 = inner.sqrt();
 
@@ -44,18 +44,18 @@ impl Race {
         };
     }
 
-    pub fn number_of_ways_to_win(&self) -> u32 {
+    pub fn number_of_ways_to_win(&self) -> u128 {
         self.maximum_charge_time() - self.minimum_charge_time() + 1
     }
 
-    fn minimum_charge_time(&self) -> u32 {
+    fn minimum_charge_time(&self) -> u128 {
         let result: f64 = 0.5f64 * (self.time as f64 - self._sqrt);
-        return result.ceil() as u32;
+        return result.ceil() as u128;
     }
 
-    fn maximum_charge_time(&self) -> u32 {
+    fn maximum_charge_time(&self) -> u128 {
         let result: f64 = 0.5f64 * (self.time as f64 + self._sqrt);
-        return result.floor() as u32;
+        return result.floor() as u128;
     }
 }
 
