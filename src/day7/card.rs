@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use phf::phf_map;
 
 use crate::GenericError;
@@ -40,7 +39,9 @@ impl Card {
     pub fn parse_all(input: &str) -> Result<Vec<Card>, GenericError> {
         let mut result: Vec<Card> = Vec::new();
         for byte in input.as_bytes() {
-            let card = CARDS.get(byte).ok_or_else(|| GenericError::new("unable to parse card"))?;
+            let card = CARDS
+                .get(byte)
+                .ok_or_else(|| GenericError::new("unable to parse card"))?;
             result.push(*card);
         }
 
@@ -61,8 +62,12 @@ impl Card {
             Card::Jack => 11,
             Card::Queen => 12,
             Card::King => 13,
-            Card::Ace => 14
+            Card::Ace => 14,
         }
+    }
+
+    pub fn positional_value(&self, position: u32) -> u128 {
+        (self.value() << 4 * position) as u128
     }
 }
 
@@ -75,6 +80,30 @@ mod tests {
         let input = "23456789TJQKA";
         let actual = Card::parse_all(input).unwrap();
 
-        assert_eq!(actual, vec![Card::Two, Card::Three, Card::Four, Card::Five, Card::Six, Card::Seven, Card::Eight, Card::Nine, Card::Ten, Card::Jack, Card::Queen, Card::King, Card::Ace]);
+        assert_eq!(
+            actual,
+            vec![
+                Card::Two,
+                Card::Three,
+                Card::Four,
+                Card::Five,
+                Card::Six,
+                Card::Seven,
+                Card::Eight,
+                Card::Nine,
+                Card::Ten,
+                Card::Jack,
+                Card::Queen,
+                Card::King,
+                Card::Ace
+            ]
+        );
+    }
+
+    #[test]
+    fn test_positional_value() {
+        let first = Card::Three.positional_value(1) + Card::Two.positional_value(0);
+        let second = Card::Two.positional_value(1) + Card::Ace.positional_value(0);
+        assert!(first > second);
     }
 }

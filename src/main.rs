@@ -1,6 +1,6 @@
 use clap::{arg, Command};
 
-use advent_of_code::{day1, day2, day3, day4, day5, day6};
+use advent_of_code::{day1, day2, day3, day4, day5, day6, day7};
 
 fn cli() -> Command {
     Command::new("aoc")
@@ -36,6 +36,11 @@ fn cli() -> Command {
                 .arg(arg!(<FILE> "The input file for the challenge."))
                 .arg_required_else_help(true),
         )
+        .subcommand(
+            Command::new("day7")
+                .arg(arg!(<FILE> "The input file for the challenge."))
+                .arg_required_else_help(true),
+        )
 }
 
 fn main() {
@@ -48,6 +53,7 @@ fn main() {
         Some(("day4", sub_matches)) => day4(sub_matches),
         Some(("day5", sub_matches)) => day5(sub_matches),
         Some(("day6", sub_matches)) => day6(sub_matches),
+        Some(("day7", sub_matches)) => day7(sub_matches),
         _ => unreachable!(),
     }
 }

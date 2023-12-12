@@ -1,6 +1,6 @@
 use std::error::Error;
 
-use crate::string_functions::{all_to_u128, all_to_u32, split_and_clean};
+use crate::string_functions::{all_to_u128, split_and_clean};
 use crate::GenericError;
 
 #[derive(Debug, PartialEq)]
@@ -72,7 +72,7 @@ Distance:  9  40  200";
 
         assert_eq!(
             actual,
-            vec![Race::new(7, 9), Race::new(15, 40), Race::new(30, 200),]
+            vec![Race::new(7, 9), Race::new(15, 40), Race::new(30, 200)]
         );
     }
 
