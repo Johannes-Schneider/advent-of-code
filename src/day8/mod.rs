@@ -1,5 +1,5 @@
 use crate::day8::direction::Direction;
-use crate::day8::node::Node;
+use crate::day8::node::{Map, Node};
 use crate::GenericError;
 use std::error::Error;
 use std::fs;
@@ -33,4 +33,24 @@ fn parse_input(input: &str) -> Result<(Vec<Direction>, Vec<Node>, usize), Generi
     let (nodes, target_node_index) = Node::parse_all(&lines[2..])?;
 
     return Ok((directions, nodes, target_node_index));
+}
+
+pub fn day8_challenge2_naive(file_path: &str) -> Result<u128, Box<dyn Error>> {
+    let text = fs::read_to_string(file_path)?;
+    let map = Map::parse(&text)?;
+
+    let mut next_node_indices = map.start_indices.to_vec();
+    let mut next_direction_index = 0usize;
+    let mut steps = 0u128;
+    while next_node_indices != map.target_indices {
+        for index in 0..next_node_indices.len() {
+            let node_index = next_node_indices[index];
+            next_node_indices[index] =map.nodes[node_index].child_index(&map.directions[next_direction_index]);
+        }
+
+        next_direction_index = (next_direction_index + 1) % map.directions.len();
+        steps += 1;
+    }
+
+    return Ok(steps);
 }

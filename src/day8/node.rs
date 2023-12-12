@@ -1,8 +1,56 @@
 use std::collections::HashMap;
 
 use crate::day8::direction::Direction;
-use crate::string_functions::split_and_clean;
 use crate::GenericError;
+use crate::string_functions::split_and_clean;
+
+pub struct Map {
+    pub directions: Vec<Direction>,
+    pub start_indices: Vec<usize>,
+    pub target_indices: Vec<usize>,
+    pub nodes: Vec<Node>,
+}
+
+impl Map {
+    pub fn parse(input: &str) -> Result<Map, GenericError> {
+        let lines: Vec<&str> = input.lines().collect::<Vec<&str>>();
+        if lines.len() < 3 {
+            return Err(GenericError::new("no nodes in input"));
+        }
+
+        let directions = Direction::parse_all(lines[0])?;
+        let raw_nodes = Node::parse_raw_nodes(&lines[2..])?;
+        let name_lookup = Node::create_node_name_to_index_lookup(&raw_nodes);
+        let nodes = Node::batch_create(&raw_nodes, &name_lookup)?;
+
+        let start_node_names = name_lookup.keys().filter(|k| k.ends_with("A")).map(|k| *k).collect::<Vec<&str>>();
+        let end_node_names = name_lookup.keys().filter(|k| k.ends_with("Z")).map(|k| *k).collect::<Vec<&str>>();
+
+        let start_node_indices = Map::lookup_all(&start_node_names, &name_lookup)?;
+        let end_node_indices = Map::lookup_all(&end_node_names, &name_lookup)?;
+
+        return Ok(Map {
+            directions,
+            start_indices: start_node_indices,
+            target_indices: end_node_indices,
+            nodes,
+        });
+    }
+
+    fn lookup_all(names: &Vec<&str>, lookup: &HashMap<&str, usize>) -> Result<Vec<usize>, GenericError> {
+        let mut result: Vec<usize> = Vec::new();
+        for name in names {
+            let mut index = lookup.get(name);
+            if index.is_none() {
+                return Err(GenericError::new("unable to find index of node"));
+            }
+
+            result.push(*index.unwrap());
+        }
+
+        return Ok(result);
+    }
+}
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Node {
@@ -23,6 +71,17 @@ impl Node {
         let raw_nodes = Node::parse_raw_nodes(input)?;
         let name_lookup = Node::create_node_name_to_index_lookup(&raw_nodes);
 
+        let nodes = Node::batch_create(&raw_nodes, &name_lookup)?;
+
+        let target_node_index = name_lookup.get("ZZZ");
+        if target_node_index.is_none() {
+            return Err(GenericError::new("unable to find target node index"));
+        }
+
+        return Ok((nodes, *target_node_index.unwrap()));
+    }
+
+    fn batch_create(raw_nodes: &Vec<RawNode>, name_lookup: &HashMap<&str, usize>) -> Result<Vec<Node>, GenericError> {
         let mut result: Vec<Node> = Vec::new();
         for (index, raw_node) in raw_nodes.iter().enumerate() {
             let left_index = name_lookup.get(raw_node.left_child_name);
@@ -39,12 +98,7 @@ impl Node {
             });
         }
 
-        let target_node_index = name_lookup.get("ZZZ");
-        if target_node_index.is_none() {
-            return Err(GenericError::new("unable to find target node index"));
-        }
-
-        return Ok((result, *target_node_index.unwrap()));
+        return Ok(result);
     }
 
     fn parse_raw_nodes<'a>(lines: &'a [&'a str]) -> Result<Vec<RawNode<'a>>, GenericError> {

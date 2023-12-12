@@ -1,10 +1,11 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
+use clap::ArgMatches;
+
 use crate::day6::day6_challenge1;
 use crate::day7::day7_challenge1;
-use crate::day8::day8_challenge1_naive;
-use clap::ArgMatches;
+use crate::day8::day8_challenge2_naive;
 
 mod day1;
 mod day2;
@@ -103,7 +104,7 @@ pub fn day7(sub_matches: &ArgMatches) {
 
 pub fn day8(sub_matches: &ArgMatches) {
     let file = sub_matches.get_one::<String>("FILE").expect("required arg");
-    let challenge1_result = day8_challenge1_naive(file).unwrap();
+    let challenge1_result = day8_challenge2_naive(file).unwrap();
 
-    println!("Result of Day 8 - Challenge 1: {}", challenge1_result);
+    println!("Result of Day 8 - Challenge 2: {}", challenge1_result);
 }
