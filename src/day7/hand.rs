@@ -81,35 +81,38 @@ impl HandType {
             panic!("each hand must consist of 5 cards exactly!");
         }
 
+        let number_of_jokers = cards.iter().filter(|c| **c == Card::Jack).count() as u32;
+
         let mut counts: HashMap<&Card, u32> = HashMap::new();
-        for card in cards {
+        for card in cards.iter().filter(|c| **c != Card::Jack) {
             *counts.entry(card).or_insert(0) += 1;
         }
 
         let mut sorted_counts: Vec<&u32> = counts.values().collect::<Vec<&u32>>();
         sorted_counts.sort_by(|c1, c2| c2.cmp(c1)); // sort in reverse order
 
-        if *sorted_counts[0] == 5 {
+        if number_of_jokers == 5 || *sorted_counts[0] + number_of_jokers == 5 {
             return HandType::FiveOfAKind;
         }
 
-        if *sorted_counts[0] == 4 {
+        if number_of_jokers == 4 || *sorted_counts[0] + number_of_jokers == 4 {
             return HandType::FourOfAKind;
         }
 
-        if *sorted_counts[0] == 3 && *sorted_counts[1] == 2 {
+        if sorted_counts.len() > 1 && *sorted_counts[0] + *sorted_counts[1] + number_of_jokers == 5
+        {
             return HandType::FullHouse;
         }
 
-        if *sorted_counts[0] == 3 {
+        if *sorted_counts[0] + number_of_jokers == 3 {
             return HandType::ThreeOfAKind;
         }
 
-        if *sorted_counts[0] == 2 && *sorted_counts[1] == 2 {
+        if *sorted_counts[0] + *sorted_counts[1] + number_of_jokers == 4 {
             return HandType::TwoPairs;
         }
 
-        if *sorted_counts[0] == 2 {
+        if *sorted_counts[0] + number_of_jokers == 2 {
             return HandType::OnePair;
         }
 
@@ -199,7 +202,7 @@ mod tests {
                 Card::Three,
                 Card::Two,
                 Card::Two,
-                Card::Two
+                Card::Two,
             ]),
             HandType::ThreeOfAKind
         );
@@ -209,7 +212,7 @@ mod tests {
                 Card::Ace,
                 Card::Two,
                 Card::Two,
-                Card::Three
+                Card::Three,
             ]),
             HandType::TwoPairs
         );
@@ -219,7 +222,7 @@ mod tests {
                 Card::Ace,
                 Card::Two,
                 Card::Four,
-                Card::Three
+                Card::Three,
             ]),
             HandType::OnePair
         );
@@ -229,9 +232,93 @@ mod tests {
                 Card::King,
                 Card::Two,
                 Card::Four,
-                Card::Three
+                Card::Three,
             ]),
             HandType::HighCard
         );
+    }
+
+    #[test]
+    fn test_hand_type_five_of_a_kind_with_jokers() {
+        assert_eq!(
+            HandType::from_cards(&merge(&[repeat(Card::Ace, 4), repeat(Card::Jack, 1)])),
+            HandType::FiveOfAKind
+        );
+        assert_eq!(
+            HandType::from_cards(&merge(&[repeat(Card::Ace, 3), repeat(Card::Jack, 2)])),
+            HandType::FiveOfAKind
+        );
+        assert_eq!(
+            HandType::from_cards(&merge(&[repeat(Card::Ace, 2), repeat(Card::Jack, 3)])),
+            HandType::FiveOfAKind
+        );
+        assert_eq!(
+            HandType::from_cards(&merge(&[repeat(Card::Ace, 1), repeat(Card::Jack, 4)])),
+            HandType::FiveOfAKind
+        );
+        assert_eq!(
+            HandType::from_cards(&merge(&[repeat(Card::Jack, 5)])),
+            HandType::FiveOfAKind
+        );
+    }
+
+    #[test]
+    fn test_hand_type_four_of_a_kind_with_jokers() {
+        assert_eq!(
+            HandType::from_cards(&merge(&[
+                repeat(Card::Ace, 3),
+                repeat(Card::Jack, 1),
+                repeat(Card::Two, 1)
+            ])),
+            HandType::FourOfAKind
+        );
+        assert_eq!(
+            HandType::from_cards(&merge(&[
+                repeat(Card::Ace, 2),
+                repeat(Card::Jack, 2),
+                repeat(Card::Two, 1)
+            ])),
+            HandType::FourOfAKind
+        );
+        assert_eq!(
+            HandType::from_cards(&merge(&[
+                repeat(Card::Ace, 1),
+                repeat(Card::Jack, 3),
+                repeat(Card::Two, 1)
+            ])),
+            HandType::FourOfAKind
+        );
+    }
+
+    #[test]
+    fn test_hand_type_full_house_with_jokers() {
+        assert_eq!(
+            HandType::from_cards(&merge(&[
+                repeat(Card::Ace, 2),
+                repeat(Card::King, 2),
+                repeat(Card::Jack, 1)
+            ])),
+            HandType::FullHouse
+        );
+    }
+
+    fn repeat(card: Card, count: u32) -> Vec<Card> {
+        let mut result: Vec<Card> = Vec::new();
+        for _ in 0..count {
+            result.push(card.clone());
+        }
+
+        return result;
+    }
+
+    fn merge(vecs: &[Vec<Card>]) -> Vec<Card> {
+        let mut result: Vec<Card> = Vec::new();
+        for vec in vecs {
+            for card in vec {
+                result.push(card.clone());
+            }
+        }
+
+        return result;
     }
 }

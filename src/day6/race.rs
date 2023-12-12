@@ -1,5 +1,3 @@
-use std::error::Error;
-
 use crate::string_functions::{all_to_u128, split_and_clean};
 use crate::GenericError;
 

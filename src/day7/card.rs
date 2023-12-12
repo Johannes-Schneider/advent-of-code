@@ -50,6 +50,7 @@ impl Card {
 
     pub fn value(&self) -> u32 {
         match self {
+            Card::Jack => 1,
             Card::Two => 2,
             Card::Three => 3,
             Card::Four => 4,
@@ -59,7 +60,6 @@ impl Card {
             Card::Eight => 8,
             Card::Nine => 9,
             Card::Ten => 10,
-            Card::Jack => 11,
             Card::Queen => 12,
             Card::King => 13,
             Card::Ace => 14,
