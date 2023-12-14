@@ -40,7 +40,7 @@ impl Map {
     fn lookup_all(names: &Vec<&str>, lookup: &HashMap<&str, usize>) -> Result<Vec<usize>, GenericError> {
         let mut result: Vec<usize> = Vec::new();
         for name in names {
-            let mut index = lookup.get(name);
+            let index = lookup.get(name);
             if index.is_none() {
                 return Err(GenericError::new("unable to find index of node"));
             }
