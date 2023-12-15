@@ -1,13 +1,10 @@
 use std::cmp::Ordering;
 use std::cmp::Ordering::Equal;
 
-use crate::day5::r#type::Type;
-use crate::string_functions::{split_and_clean, to_u128};
 use crate::GenericError;
+use crate::string_functions::{split_and_clean, to_u128};
 
 pub struct TypeConversion {
-    source: Type,
-    destination: Type,
     mappings: Vec<RangeMapping>,
 }
 
@@ -38,13 +35,9 @@ impl TypeConversion {
             ));
         }
 
-        let source_type = Type::from_string(sub_parts[0])?;
-        let destination_type = Type::from_string(sub_parts[2])?;
         let range_mappings = TypeConversion::parse_mappings(&input_lines[1..])?;
 
         return Ok(TypeConversion {
-            source: source_type,
-            destination: destination_type,
             mappings: range_mappings,
         });
     }
@@ -181,7 +174,6 @@ impl RangeMapping {
 mod tests {
     use std::cmp::Ordering;
 
-    use crate::day5::r#type::Type;
     use crate::day5::type_conversion::{RangeMapping, TypeConversion};
 
     #[test]
@@ -195,8 +187,6 @@ soil-to-fertilizer map:
             .collect::<Vec<&str>>();
         let sut = TypeConversion::parse(&input).unwrap();
 
-        assert_eq!(sut.source, Type::SOIL);
-        assert_eq!(sut.destination, Type::FERTILIZER);
         assert_eq!(
             sut.mappings,
             vec![

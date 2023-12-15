@@ -7,7 +7,6 @@ use crate::day5::type_conversion::TypeConversion;
 use crate::string_functions::{split_and_clean, to_u128};
 use crate::GenericError;
 
-mod r#type;
 mod type_conversion;
 
 pub fn day5_challenge1(file_path: &str) -> Result<u128, Box<dyn Error>> {
