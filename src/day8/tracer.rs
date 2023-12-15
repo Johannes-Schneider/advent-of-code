@@ -14,7 +14,14 @@ pub struct Cycle {
 
 impl Display for Cycle {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "offset: {}; length: {}; #offset_result: {}; #repeated_result: {}", self.offset, self.length, self.offset_results.len(), self.repeated_results.len())
+        write!(
+            f,
+            "offset: {}; length: {}; #offset_result: {}; #repeated_result: {}",
+            self.offset,
+            self.length,
+            self.offset_results.len(),
+            self.repeated_results.len()
+        )
     }
 }
 
@@ -69,7 +76,8 @@ impl Cycle {
 
             entry.or_insert(steps);
             steps += 1;
-            next_node_index = map.nodes[next_node_index].child_index(&map.directions[next_direction_index]);
+            next_node_index =
+                map.nodes[next_node_index].child_index(&map.directions[next_direction_index]);
             next_direction_index = (next_direction_index + 1) % map.directions.len();
         }
     }
@@ -97,19 +105,25 @@ XXX = (XXX, XXX)";
 
         let first_cycle = Cycle::find(&map, 0);
 
-        assert_eq!(first_cycle, Cycle {
-            offset: 1,
-            length: 2,
-            offset_results: Vec::new(),
-            repeated_results: vec![1],
-        });
+        assert_eq!(
+            first_cycle,
+            Cycle {
+                offset: 1,
+                length: 2,
+                offset_results: Vec::new(),
+                repeated_results: vec![1],
+            }
+        );
 
         let second_cycle = Cycle::find(&map, 3);
-        assert_eq!(second_cycle, Cycle {
-            offset: 1,
-            length: 6,
-            offset_results: Vec::new(),
-            repeated_results: vec![2, 5],
-        })
+        assert_eq!(
+            second_cycle,
+            Cycle {
+                offset: 1,
+                length: 6,
+                offset_results: Vec::new(),
+                repeated_results: vec![2, 5],
+            }
+        )
     }
 }

@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 
 use crate::day8::direction::Direction;
-use crate::GenericError;
 use crate::string_functions::split_and_clean;
+use crate::GenericError;
 
 pub struct Map {
     pub directions: Vec<Direction>,
@@ -23,8 +23,16 @@ impl Map {
         let name_lookup = Node::create_node_name_to_index_lookup(&raw_nodes);
         let nodes = Node::batch_create(&raw_nodes, &name_lookup)?;
 
-        let start_node_names = name_lookup.keys().filter(|k| k.ends_with("A")).map(|k| *k).collect::<Vec<&str>>();
-        let end_node_names = name_lookup.keys().filter(|k| k.ends_with("Z")).map(|k| *k).collect::<Vec<&str>>();
+        let start_node_names = name_lookup
+            .keys()
+            .filter(|k| k.ends_with("A"))
+            .map(|k| *k)
+            .collect::<Vec<&str>>();
+        let end_node_names = name_lookup
+            .keys()
+            .filter(|k| k.ends_with("Z"))
+            .map(|k| *k)
+            .collect::<Vec<&str>>();
 
         let start_node_indices = Map::lookup_all(&start_node_names, &name_lookup)?;
         let end_node_indices = Map::lookup_all(&end_node_names, &name_lookup)?;
@@ -37,7 +45,10 @@ impl Map {
         });
     }
 
-    fn lookup_all(names: &Vec<&str>, lookup: &HashMap<&str, usize>) -> Result<Vec<usize>, GenericError> {
+    fn lookup_all(
+        names: &Vec<&str>,
+        lookup: &HashMap<&str, usize>,
+    ) -> Result<Vec<usize>, GenericError> {
         let mut result: Vec<usize> = Vec::new();
         for name in names {
             let index = lookup.get(name);
@@ -81,7 +92,10 @@ impl Node {
         return Ok((nodes, *target_node_index.unwrap()));
     }
 
-    fn batch_create(raw_nodes: &Vec<RawNode>, name_lookup: &HashMap<&str, usize>) -> Result<Vec<Node>, GenericError> {
+    fn batch_create(
+        raw_nodes: &Vec<RawNode>,
+        name_lookup: &HashMap<&str, usize>,
+    ) -> Result<Vec<Node>, GenericError> {
         let mut result: Vec<Node> = Vec::new();
         for (index, raw_node) in raw_nodes.iter().enumerate() {
             let left_index = name_lookup.get(raw_node.left_child_name);

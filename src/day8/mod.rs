@@ -1,13 +1,18 @@
-use std::cmp::min;
-use crate::day8::direction::Direction;
-use crate::day8::node::{Map, Node};
-use crate::GenericError;
+use std::collections::hash_map::Entry;
+use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
+use std::hash::Hash;
+
+use crate::day8::direction::Direction;
+use crate::day8::node::{Map, Node};
+use crate::day8::prime::{Prime, PrimeFactor};
 use crate::day8::tracer::Cycle;
+use crate::GenericError;
 
 mod direction;
 mod node;
+mod prime;
 mod tracer;
 
 pub fn day8_challenge1_naive(file_path: &str) -> Result<u128, Box<dyn Error>> {
@@ -48,7 +53,8 @@ pub fn day8_challenge2_naive(file_path: &str) -> Result<u128, Box<dyn Error>> {
     while next_node_indices != map.target_indices {
         for index in 0..next_node_indices.len() {
             let node_index = next_node_indices[index];
-            next_node_indices[index] =map.nodes[node_index].child_index(&map.directions[next_direction_index]);
+            next_node_indices[index] =
+                map.nodes[node_index].child_index(&map.directions[next_direction_index]);
         }
 
         next_direction_index = (next_direction_index + 1) % map.directions.len();
@@ -63,12 +69,47 @@ pub fn day8_challenge2_cycles(file_path: &str) -> Result<u128, Box<dyn Error>> {
     let map = Map::parse(&text)?;
     let cycles = Cycle::find_all(&map);
 
-    let maybe_offset_result = check_if_offset_results_overlap(&cycles);
-    if let Some(steps) = maybe_offset_result {
-        return Ok(steps);
+    for cycle in &cycles {
+        // checking assumptions for challenge
+        if cycle.repeated_results.len() != 1 {
+            return Err(Box::new(GenericError::new("found more than one result per cycle")));
+        }
+
+        if cycle.offset_results.len() != 0 {
+            return Err(Box::new(GenericError::new("found an offset result")));
+        }
+
+        if cycle.repeated_results[0] + cycle.offset != cycle.length {
+            return Err(Box::new(GenericError::new("initial target offset + cycle offset != cycle length")));
+        }
     }
 
-    return Ok(brute_force_steps(&cycles));
+    let mut prime = Prime::new();
+    let mut prime_factors = Vec::new();
+    for cycle in &cycles {
+        prime_factors.push(prime.prime_factors(cycle.length));
+    }
+
+    return Ok(least_common_multiple(&prime_factors));
+}
+
+fn least_common_multiple(all_factors: &Vec<Vec<PrimeFactor>>) -> u128 {
+    let mut exponents: HashMap<u128, u128> = HashMap::new();
+    for factors in all_factors {
+        for factor in factors {
+            let maybe_existing_exponent = exponents.get(&factor.base);
+            if *maybe_existing_exponent.unwrap_or(&0) < factor.exponent {
+                exponents.insert(factor.base, factor.exponent);
+            }
+        }
+    }
+
+    let mut result = 1u128;
+    for (k, v) in exponents {
+        result *= k.pow(v as u32);
+    }
+
+    return result;
 }
 
 fn check_if_offset_results_overlap(cycle: &Vec<Cycle>) -> Option<u128> {
@@ -77,8 +118,11 @@ fn check_if_offset_results_overlap(cycle: &Vec<Cycle>) -> Option<u128> {
     }
 
     for steps in &cycle[0].offset_results {
-        if cycle[1..].iter().all(|c| c.offset_results.iter().any(|s| s == steps)) {
-            return Some(*steps)
+        if cycle[1..]
+            .iter()
+            .all(|c| c.offset_results.iter().any(|s| s == steps))
+        {
+            return Some(*steps);
         }
     }
 
@@ -93,13 +137,19 @@ fn brute_force_steps(cycles: &Vec<Cycle>) -> u128 {
                 offset: cycle.offset,
                 offset_results: Vec::new(),
                 length: cycle.length,
-                repeated_results: vec![*steps]
+                repeated_results: vec![*steps],
             });
         }
     }
 
-    let mut steps = single_result_cycle.iter().map(|c| steps_after_loops(c, 0)).collect::<Vec<u128>>();
-    let mut loops = single_result_cycle.iter().map(|_| 0u128).collect::<Vec<u128>>();
+    let mut steps = single_result_cycle
+        .iter()
+        .map(|c| steps_after_loops(c, 0))
+        .collect::<Vec<u128>>();
+    let mut loops = single_result_cycle
+        .iter()
+        .map(|_| 0u128)
+        .collect::<Vec<u128>>();
     while !all_elements_equal(&steps) {
         let mut min_steps = u128::MAX;
         let mut min_index = usize::MAX;
