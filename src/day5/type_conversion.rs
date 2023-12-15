@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 use std::cmp::Ordering::Equal;
 
-use crate::GenericError;
 use crate::string_functions::{split_and_clean, to_u128};
+use crate::GenericError;
 
 pub struct TypeConversion {
     mappings: Vec<RangeMapping>,

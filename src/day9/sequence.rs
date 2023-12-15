@@ -47,6 +47,22 @@ impl SequenceExtrapolation {
         return self.sequences[0].numbers[index];
     }
 
+    pub fn previous_value(&mut self, number_of_values: i32) -> i128 {
+        if self.sequences.len() < 1 {
+            panic!("no sequences in extrapolator found");
+        }
+
+        for _ in 0..number_of_values {
+            let mut previous_value = 0i128;
+            for i in (0..self.sequences.len()).rev() {
+                previous_value =
+                    self.sequences[i].calculate_and_store_previous_value(previous_value);
+            }
+        }
+
+        return self.sequences[0].numbers[0];
+    }
+
     pub fn len(&self) -> usize {
         return self.sequences[0].len();
     }
@@ -123,6 +139,21 @@ impl NumberSequence {
         self.numbers.push(next_value);
 
         return next_value;
+    }
+
+    pub fn calculate_and_store_previous_value(&mut self, difference: i128) -> i128 {
+        if self.is_constant && difference != 0 {
+            panic!("constant sequences must always have a difference of 0");
+        }
+
+        if self.is_constant {
+            return self.numbers[0];
+        }
+
+        let previous_value = self.numbers[0] - difference;
+        self.numbers.insert(0, previous_value);
+
+        return previous_value;
     }
 }
 

@@ -6,7 +6,7 @@ use clap::ArgMatches;
 use crate::day6::day6_challenge1;
 use crate::day7::day7_challenge1;
 use crate::day8::{day8_challenge1_naive, day8_challenge2_cycles};
-use crate::day9::day9_challenge1;
+use crate::day9::{day9_challenge1, day9_challenge2};
 
 mod day1;
 mod day2;
@@ -116,6 +116,8 @@ pub fn day8(sub_matches: &ArgMatches) {
 pub fn day9(sub_matches: &ArgMatches) {
     let file = sub_matches.get_one::<String>("FILE").expect("required arg");
     let challenge1_result = day9_challenge1(file).unwrap();
+    let challenge2_result = day9_challenge2(file).unwrap();
 
     println!("Result of Day 9 - Challenge 1: {}", challenge1_result);
+    println!("Result of Day 9 - Challenge 2: {}", challenge2_result);
 }
