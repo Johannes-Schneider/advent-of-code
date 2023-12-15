@@ -16,10 +16,6 @@ impl Prime {
     }
 
     pub fn prime_factors(&mut self, number: u128) -> Vec<PrimeFactor> {
-        return self.prime_factors_internal(number);
-    }
-
-    fn prime_factors_internal(&mut self, number: u128) -> Vec<PrimeFactor> {
         self.sieve_of_eratosthenes(number);
 
         if self.known_primes.binary_search(&number).is_ok() {
@@ -109,34 +105,6 @@ impl Prime {
             }
         }
     }
-
-    fn calculate_primes_until(&mut self, number: u128) {
-        let start = if self.known_primes.len() > 0 {
-            self.known_primes[self.known_primes.len() - 1] + 1
-        } else {
-            2
-        };
-        for x in start..number + 1 {
-            if self.known_primes.iter().all(|prime| x % prime != 0) {
-                self.known_primes.push(x);
-            }
-        }
-    }
-
-    fn is_prime_internal(number: u128) -> bool {
-        let upper_bound = Prime::greatest_possible_prime(number);
-        for divisor in 2..upper_bound + 1 {
-            if number % divisor == 0 {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    fn greatest_possible_prime(number: u128) -> u128 {
-        (number as f64).sqrt().floor() as u128
-    }
 }
 
 #[cfg(test)]
@@ -181,27 +149,29 @@ mod tests {
                 },
             ]
         );
-        assert_eq!(prime.prime_factors(3528),
-                   vec![
-                       PrimeFactor {
-                           base: 2,
-                           exponent: 3,
-                       },
-                       PrimeFactor {
-                           base: 3,
-                           exponent: 2,
-                       },
-                       PrimeFactor {
-                           base: 7,
-                           exponent: 2,
-                       },
-                   ]);
-        assert_eq!(prime.prime_factors(8011),
-                   vec![
-                       PrimeFactor {
-                           base: 8011,
-                           exponent: 1,
-                       }
-                   ]);
+        assert_eq!(
+            prime.prime_factors(3528),
+            vec![
+                PrimeFactor {
+                    base: 2,
+                    exponent: 3,
+                },
+                PrimeFactor {
+                    base: 3,
+                    exponent: 2,
+                },
+                PrimeFactor {
+                    base: 7,
+                    exponent: 2,
+                },
+            ]
+        );
+        assert_eq!(
+            prime.prime_factors(8011),
+            vec![PrimeFactor {
+                base: 8011,
+                exponent: 1,
+            }]
+        );
     }
 }

@@ -1,8 +1,6 @@
-use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
-use std::hash::Hash;
 
 use crate::day8::direction::Direction;
 use crate::day8::node::{Map, Node};
@@ -72,7 +70,9 @@ pub fn day8_challenge2_cycles(file_path: &str) -> Result<u128, Box<dyn Error>> {
     for cycle in &cycles {
         // checking assumptions for challenge
         if cycle.repeated_results.len() != 1 {
-            return Err(Box::new(GenericError::new("found more than one result per cycle")));
+            return Err(Box::new(GenericError::new(
+                "found more than one result per cycle",
+            )));
         }
 
         if cycle.offset_results.len() != 0 {
@@ -80,7 +80,9 @@ pub fn day8_challenge2_cycles(file_path: &str) -> Result<u128, Box<dyn Error>> {
         }
 
         if cycle.repeated_results[0] + cycle.offset != cycle.length {
-            return Err(Box::new(GenericError::new("initial target offset + cycle offset != cycle length")));
+            return Err(Box::new(GenericError::new(
+                "initial target offset + cycle offset != cycle length",
+            )));
         }
     }
 
@@ -127,67 +129,4 @@ fn check_if_offset_results_overlap(cycle: &Vec<Cycle>) -> Option<u128> {
     }
 
     return None;
-}
-
-fn brute_force_steps(cycles: &Vec<Cycle>) -> u128 {
-    let mut single_result_cycle = Vec::new();
-    for cycle in cycles {
-        for steps in &cycle.repeated_results {
-            single_result_cycle.push(Cycle {
-                offset: cycle.offset,
-                offset_results: Vec::new(),
-                length: cycle.length,
-                repeated_results: vec![*steps],
-            });
-        }
-    }
-
-    let mut steps = single_result_cycle
-        .iter()
-        .map(|c| steps_after_loops(c, 0))
-        .collect::<Vec<u128>>();
-    let mut loops = single_result_cycle
-        .iter()
-        .map(|_| 0u128)
-        .collect::<Vec<u128>>();
-    while !all_elements_equal(&steps) {
-        let mut min_steps = u128::MAX;
-        let mut min_index = usize::MAX;
-        let mut max_steps = u128::MIN;
-        let mut max_index = usize::MIN;
-
-        for (index, s) in steps.iter().enumerate() {
-            if *s < min_steps {
-                min_steps = *s;
-                min_index = index;
-            }
-
-            if *s > max_steps {
-                max_steps = *s;
-                max_index = index;
-            }
-        }
-
-        println!("max: {max_steps} vs. min: {min_steps}");
-
-        let mut l = loops[min_index] + 1;
-        let mut s = steps_after_loops(&single_result_cycle[min_index], l);
-        while s < max_steps {
-            l += 1;
-            s = steps_after_loops(&single_result_cycle[min_index], l);
-        }
-
-        loops[min_index] = l;
-        steps[min_index] = s;
-    }
-
-    return steps[0];
-}
-
-fn steps_after_loops(cycle: &Cycle, loops: u128) -> u128 {
-    cycle.offset + cycle.repeated_results[0] + loops * cycle.length
-}
-
-fn all_elements_equal(input: &Vec<u128>) -> bool {
-    input.iter().all(|e| *e == input[0])
 }

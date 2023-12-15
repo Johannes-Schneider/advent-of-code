@@ -5,7 +5,8 @@ use clap::ArgMatches;
 
 use crate::day6::day6_challenge1;
 use crate::day7::day7_challenge1;
-use crate::day8::{day8_challenge2_cycles, day8_challenge2_naive};
+use crate::day8::day8_challenge2_cycles;
+use crate::day9::day9_challenge1;
 
 mod day1;
 mod day2;
@@ -15,6 +16,7 @@ mod day5;
 mod day6;
 mod day7;
 mod day8;
+mod day9;
 mod string_functions;
 
 pub struct GenericError {
@@ -107,4 +109,11 @@ pub fn day8(sub_matches: &ArgMatches) {
     let challenge1_result = day8_challenge2_cycles(file).unwrap();
 
     println!("Result of Day 8 - Challenge 2: {}", challenge1_result);
+}
+
+pub fn day9(sub_matches: &ArgMatches) {
+    let file = sub_matches.get_one::<String>("FILE").expect("required arg");
+    let challenge1_result = day9_challenge1(file).unwrap();
+
+    println!("Result of Day 9 - Challenge 1: {}", challenge1_result);
 }

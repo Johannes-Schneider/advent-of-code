@@ -10,24 +10,6 @@ pub fn split_and_clean<'a>(input: &'a str, separator: &str) -> Vec<&'a str> {
     return parts;
 }
 
-pub fn to_u32(input: &str) -> Result<u32, GenericError> {
-    let maybe_result = input.parse::<u32>();
-    if maybe_result.is_err() {
-        return Err(GenericError::new("unable to convert string to u32"));
-    }
-
-    return Ok(maybe_result.unwrap());
-}
-
-pub fn all_to_u32(input: &[&str]) -> Result<Vec<u32>, GenericError> {
-    let mut result: Vec<u32> = Vec::new();
-    for x in input {
-        result.push(to_u32(x)?);
-    }
-
-    return Ok(result);
-}
-
 pub fn to_u128(input: &str) -> Result<u128, GenericError> {
     let maybe_result = input.parse::<u128>();
     if maybe_result.is_err() {
@@ -46,26 +28,20 @@ pub fn all_to_u128(input: &[&str]) -> Result<Vec<u128>, GenericError> {
     return Ok(result);
 }
 
-#[cfg(test)]
-mod tests {
-    use crate::string_functions::split_and_clean;
-    use crate::string_functions::to_u32;
-
-    #[test]
-    fn split_and_clean_ok() {
-        let input = "foo |  bar | b  a\tz \t| ";
-        let actual = split_and_clean(input, "|");
-
-        assert_eq!(actual, vec!["foo", "bar", "b  a\tz"]);
+pub fn to_i128(input: &str) -> Result<i128, GenericError> {
+    let maybe_result = input.parse::<i128>();
+    if maybe_result.is_err() {
+        return Err(GenericError::new("unable to convert string to i128"));
     }
 
-    #[test]
-    fn to_u32_ok() {
-        assert_eq!(to_u32("1337").unwrap(), 1337);
+    return Ok(maybe_result.unwrap());
+}
+
+pub fn all_to_i128(input: &[&str]) -> Result<Vec<i128>, GenericError> {
+    let mut result: Vec<i128> = Vec::new();
+    for x in input {
+        result.push(to_i128(x)?);
     }
 
-    #[test]
-    fn to_u32_err() {
-        assert_eq!(to_u32("foo").is_err(), true);
-    }
+    return Ok(result);
 }
