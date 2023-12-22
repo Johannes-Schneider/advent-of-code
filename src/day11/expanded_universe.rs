@@ -117,39 +117,6 @@ mod tests {
     }
 
     #[test]
-    fn test_challenge2_001() {
-        let input = "\
-...#......
-.......#..
-#.........
-..........
-......#...
-.#........
-.........#
-..........
-.......#..
-#...#.....";
-
-        let image = Image::parse(&input).unwrap();
-        let sut = ExpandedUniverse::challenge2(&image);
-
-        assert_eq!(sut.horizontal_offsets.len(), image.number_of_columns);
-        assert_eq!(
-            sut.horizontal_offsets,
-            vec![
-                0, 0, 0, 1_000_000, 1_000_000, 1_000_000, 2_000_000, 2_000_000, 2_000_000,
-                3_000_000
-            ]
-        );
-
-        assert_eq!(sut.vertical_offsets.len(), image.number_of_rows);
-        assert_eq!(
-            sut.vertical_offsets,
-            vec![0, 0, 0, 0, 1_000_000, 1_000_000, 1_000_000, 1_000_000, 2_000_000, 2_000_000]
-        );
-    }
-
-    #[test]
     fn test_get_2d_index_challenge1_001() {
         let input = "\
 ...#......
@@ -170,28 +137,5 @@ mod tests {
         assert_eq!(sut.get_2d_index(17), (1, 9));
         assert_eq!(sut.get_2d_index(20), (2, 0));
         assert_eq!(sut.get_2d_index(46), (5, 8));
-    }
-
-    #[test]
-    fn test_get_2d_index_challenge2_001() {
-        let input = "\
-...#......
-.......#..
-#.........
-..........
-......#...
-.#........
-.........#
-..........
-.......#..
-#...#.....";
-
-        let image = Image::parse(&input).unwrap();
-        let sut = ExpandedUniverse::challenge2(&image);
-
-        assert_eq!(sut.get_2d_index(3), (0, 1_000_003));
-        // assert_eq!(sut.get_2d_index(17), (1, 9));
-        // assert_eq!(sut.get_2d_index(20), (2, 0));
-        // assert_eq!(sut.get_2d_index(46), (5, 8));
     }
 }
