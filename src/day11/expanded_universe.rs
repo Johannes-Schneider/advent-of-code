@@ -3,26 +3,36 @@ use crate::day11::node::Pixel;
 
 pub struct ExpandedUniverse<'a> {
     pub image: &'a Image,
+    expansion_factor: usize,
     horizontal_offsets: Vec<usize>,
     vertical_offsets: Vec<usize>,
 }
 
 impl ExpandedUniverse<'_> {
-    pub fn challenge1(image: &Image) -> ExpandedUniverse {
+    pub fn expand(image: &Image, factor: usize) -> ExpandedUniverse {
         return ExpandedUniverse {
             image,
-            horizontal_offsets: ExpandedUniverse::calculate_horizontal_offsets(image),
-            vertical_offsets: ExpandedUniverse::calculate_vertical_offsets(image),
+            expansion_factor: factor,
+            horizontal_offsets: ExpandedUniverse::calculate_horizontal_offsets(image, factor),
+            vertical_offsets: ExpandedUniverse::calculate_vertical_offsets(image, factor),
         };
     }
 
-    fn calculate_horizontal_offsets(image: &Image) -> Vec<usize> {
+    pub fn challenge1(image: &Image) -> ExpandedUniverse {
+        return ExpandedUniverse::expand(image, 2);
+    }
+
+    pub fn challenge2(image: &Image) -> ExpandedUniverse {
+        return ExpandedUniverse::expand(image, 1_000_000);
+    }
+
+    fn calculate_horizontal_offsets(image: &Image, expansion_factor: usize) -> Vec<usize> {
         let mut offsets = vec![0usize];
 
         for column in 0..image.number_of_columns - 1 {
             let last_offset = &offsets[offsets.len() - 1];
             if ExpandedUniverse::column_is_empty(image, column) {
-                offsets.push(*last_offset + 1);
+                offsets.push(*last_offset + expansion_factor - 1);
             } else {
                 offsets.push(*last_offset);
             }
@@ -42,13 +52,13 @@ impl ExpandedUniverse<'_> {
         return true;
     }
 
-    fn calculate_vertical_offsets(image: &Image) -> Vec<usize> {
+    fn calculate_vertical_offsets(image: &Image, expansion_factor: usize) -> Vec<usize> {
         let mut offsets = vec![0usize];
 
         for row in 0..image.number_of_rows - 1 {
             let last_offset = &offsets[offsets.len() - 1];
             if ExpandedUniverse::row_is_empty(image, row) {
-                offsets.push(*last_offset + 1);
+                offsets.push(*last_offset + expansion_factor - 1);
             } else {
                 offsets.push(*last_offset);
             }
@@ -107,7 +117,40 @@ mod tests {
     }
 
     #[test]
-    fn test_get_2d_index_001() {
+    fn test_challenge2_001() {
+        let input = "\
+...#......
+.......#..
+#.........
+..........
+......#...
+.#........
+.........#
+..........
+.......#..
+#...#.....";
+
+        let image = Image::parse(&input).unwrap();
+        let sut = ExpandedUniverse::challenge2(&image);
+
+        assert_eq!(sut.horizontal_offsets.len(), image.number_of_columns);
+        assert_eq!(
+            sut.horizontal_offsets,
+            vec![
+                0, 0, 0, 1_000_000, 1_000_000, 1_000_000, 2_000_000, 2_000_000, 2_000_000,
+                3_000_000
+            ]
+        );
+
+        assert_eq!(sut.vertical_offsets.len(), image.number_of_rows);
+        assert_eq!(
+            sut.vertical_offsets,
+            vec![0, 0, 0, 0, 1_000_000, 1_000_000, 1_000_000, 1_000_000, 2_000_000, 2_000_000]
+        );
+    }
+
+    #[test]
+    fn test_get_2d_index_challenge1_001() {
         let input = "\
 ...#......
 .......#..
@@ -127,5 +170,28 @@ mod tests {
         assert_eq!(sut.get_2d_index(17), (1, 9));
         assert_eq!(sut.get_2d_index(20), (2, 0));
         assert_eq!(sut.get_2d_index(46), (5, 8));
+    }
+
+    #[test]
+    fn test_get_2d_index_challenge2_001() {
+        let input = "\
+...#......
+.......#..
+#.........
+..........
+......#...
+.#........
+.........#
+..........
+.......#..
+#...#.....";
+
+        let image = Image::parse(&input).unwrap();
+        let sut = ExpandedUniverse::challenge2(&image);
+
+        assert_eq!(sut.get_2d_index(3), (0, 1_000_003));
+        // assert_eq!(sut.get_2d_index(17), (1, 9));
+        // assert_eq!(sut.get_2d_index(20), (2, 0));
+        // assert_eq!(sut.get_2d_index(46), (5, 8));
     }
 }
