@@ -1,9 +1,10 @@
 use std::error::Error;
 use std::fmt::{Debug, Display, Formatter};
 
-use crate::day10::solve_day10;
 use clap::ArgMatches;
 
+use crate::day10::solve_day10;
+use crate::day11::solve_day11;
 use crate::day6::day6_challenge1;
 use crate::day7::day7_challenge1;
 use crate::day8::{day8_challenge1_naive, day8_challenge2_cycles};
@@ -11,6 +12,7 @@ use crate::day9::{day9_challenge1, day9_challenge2};
 
 mod day1;
 mod day10;
+mod day11;
 mod day2;
 mod day3;
 mod day4;
@@ -127,4 +129,9 @@ pub fn day9(sub_matches: &ArgMatches) {
 pub fn day10(sub_matches: &ArgMatches) {
     let file = sub_matches.get_one::<String>("FILE").expect("required arg");
     solve_day10(file);
+}
+
+pub fn day11(sub_matches: &ArgMatches) {
+    let file = sub_matches.get_one::<String>("FILE").expect("required arg");
+    solve_day11(file);
 }
