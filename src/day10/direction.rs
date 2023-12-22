@@ -9,10 +9,6 @@ pub enum Direction {
 }
 
 impl Direction {
-    pub fn connects_to(&self, next_direction: &Direction) -> bool {
-        return next_direction == &self.inverse();
-    }
-
     pub fn inverse(&self) -> Direction {
         match self {
             North => South,

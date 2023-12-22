@@ -1,32 +1,29 @@
-use std::error::Error;
 use std::fs;
 
-use crate::day10::map::Map;
-use crate::GenericError;
+use crate::day10::area_map::AreaMap;
+use crate::day10::loop_map::LoopMap;
+use crate::day10::tile_map::TileMap;
 
+mod area_map;
 mod direction;
-mod map;
+mod loop_map;
+mod tile;
+mod tile_map;
 
-pub fn day10_challenge1(file_path: &str) -> Result<usize, Box<dyn Error>> {
-    let text = fs::read_to_string(file_path)?;
-    let map = Map::parse(&text)?;
+pub fn solve_day10(file_path: &str) {
+    let text = fs::read_to_string(file_path).expect("given challenge file cannot be read");
+    let tile_map = TileMap::parse(&text).expect("cannot parse input data");
 
-    if map.start_node_indices.len() != 1 {
-        return Err(Box::new(GenericError::new(
-            "found more than one start node",
-        )));
+    if tile_map.start_tile_indices.len() != 1 {
+        panic!("tile map doesn't contain exactly one start tile");
     }
 
-    let mut path = vec![map.start_node_indices[0]];
-    let mut maybe_paths = map.get_loops_recursive(&mut path, true);
-    if maybe_paths.is_none() {
-        return Err(Box::new(GenericError::new("no cycles found")));
-    }
+    let loop_map = LoopMap::find_first(&tile_map, &tile_map.start_tile_indices[0])
+        .expect("no loop in tile map found");
 
-    let paths = maybe_paths.unwrap();
-    if paths.len() != 1 {
-        return Err(Box::new(GenericError::new("found not exactly one path")));
-    }
+    let half_length = (loop_map.length as f64 * 0.5f64).ceil() as i128;
+    println!("Day10 - Challenge1: {half_length}");
 
-    return Ok((paths[0].len() as f64 * 0.5f64).ceil() as usize);
+    let area_map = AreaMap::calculate(&loop_map);
+    println!("Day10 - Challenge2: {}", area_map.area_within);
 }
