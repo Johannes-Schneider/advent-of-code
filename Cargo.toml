@@ -11,3 +11,4 @@ phf = { version = "0.11.2", features = ["macros"] }
 substring = "1.4.5"
 lazy_static = "1.4.0"
 bitvec = "1.0.1"
+crossbeam = "0.8.3"

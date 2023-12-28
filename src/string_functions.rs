@@ -45,3 +45,21 @@ pub fn all_to_i128(input: &[&str]) -> Result<Vec<i128>, GenericError> {
 
     return Ok(result);
 }
+
+pub fn to_usize(input: &str) -> Result<usize, GenericError> {
+    let maybe_result = input.parse::<usize>();
+    if maybe_result.is_err() {
+        return Err(GenericError::new("unable to convert string to usize"));
+    }
+
+    return Ok(maybe_result.unwrap());
+}
+
+pub fn all_to_usize(input: &[&str]) -> Result<Vec<usize>, GenericError> {
+    let mut result = Vec::new();
+    for x in input {
+        result.push(to_usize(x)?);
+    }
+
+    return Ok(result);
+}
